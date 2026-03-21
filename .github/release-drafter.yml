@@ -1,0 +1,69 @@
+name-template: 'v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
+
+category-template: '### $TITLE'
+categories:
+  - title: '💥 Breaking Changes'
+    labels: [ '💥 Breaking Change' ]
+
+  - title: '🔒 Security'
+    labels: [ '🔒 Security' ]
+    exclude-labels: [ '💥 Breaking Change' ]
+
+  - title: '✨ Features'
+    labels: [ '✨ Feature' ]
+    exclude-labels: [ '💥 Breaking Change', '🔒 Security', '🤖 Dependencies' ]
+
+  - title: '🐛 Bug Fixes'
+    labels: [ '🐛 Bug' ]
+    exclude-labels: [ '💥 Breaking Change', '🔒 Security', '✨ Feature', '🤖 Dependencies' ]
+
+  - title: '⚡️ Performance & Refactor'
+    labels: [ '⚡️ Performance', '🔄 Refactor' ]
+    exclude-labels: [ '💥 Breaking Change', '🔒 Security', '✨ Feature', '🤖 Dependencies', '🐛 Bug' ]
+
+  - title: '🧹 Other Changes'
+    labels:
+      - '🧹 Chore'
+      - '🤖 Dependencies'
+      - '🧪 Testing'
+      - '🛡️ Infrastructure / CI'
+      - '📚 Documentation'
+      - '🎨 Code Style'
+    exclude-labels: [ '💥 Breaking Change', '🔒 Security', '✨ Feature', '🐛 Bug', '⚡️ Performance', '🔄 Refactor' ]
+    collapse-after: 3
+
+change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
+change-title-escapes: '\<*_&'
+
+exclude-labels: [ 'skip-changelog' ]
+exclude-contributors:
+  - dependabot
+  - dependabot[bot]
+
+version-resolver:
+  major:
+    labels: [ '💥 Breaking Change', '🔒 Security' ]
+  minor:
+    labels: [ '✨ Feature' ]
+  patch:
+    labels:
+      - '🐛 Bug'
+      - '⚡️ Performance'
+      - '🔄 Refactor'
+      - '🧹 Chore'
+      - '🤖 Dependencies'
+      - '🧪 Testing'
+      - '🛡️ Infrastructure / CI'
+      - '📚 Documentation'
+      - '🎨 Code Style'
+  default: patch
+
+template: |
+  $CHANGES
+
+  ## 🔗 Links
+
+  > Нашли баг или есть предложение? Открывайте [issue](https://github.com/$OWNER/$REPOSITORY/issues/new/choose) или присоединяйтесь к [discussions](https://github.com/orgs/selfshop-dev/discussions).
+
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
