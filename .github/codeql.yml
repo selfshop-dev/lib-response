@@ -1,0 +1,22 @@
+name: "codeql configuration"
+
+disable-default-queries: false
+queries:
+  - uses: security-and-quality
+
+# CodeQL config uses glob patterns (minimatch, same as GitHub Actions).
+# Unlike codecov, ** here matches recursively by default in paths-ignore.
+# cmd/ is intentionally included — security vulnerabilities in cmd are relevant.
+paths-ignore:
+  # Generated directories (sqlc, oapi-codegen, protoc output)
+  - "**/gen/**"
+  # Generated files by suffix
+  - "**/*_mock.go"
+  - "**/*.pb.go"
+  - "**/*.pb.gw.go"
+  - "**/*.sql.go"
+  - "**/*.gen.go"
+  # Standard exclusions
+  - "**/vendor/**"
+  - "**/testdata/**"
+  - "**/mocks/**"
