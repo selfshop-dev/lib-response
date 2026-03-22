@@ -232,7 +232,21 @@ linters: # https://golangci-lint.run/docs/configuration/file/#linters-configurat
           - funlen
           - cyclop
           - err113
+          - errcheck
           - wrapcheck
+          - gochecknoglobals
+
+      # fieldalignment in test files: anonymous structs in table-driven tests
+      # do not benefit from memory layout optimisation.
+      - path: ".*_test\\.go$"
+        linters:
+          - govet
+        text: "fieldalignment"
+
+      # Package-level sentinel Problems are immutable by convention —
+      # WithDetail always returns a copy. Treating them as globals is a false positive.
+      - path: "sentinels\\.go$"
+        linters:
           - gochecknoglobals
 
 issues: # https://golangci-lint.run/docs/configuration/file/#issues-configuration
@@ -249,4 +263,4 @@ formatters: # https://golangci-lint.run/docs/configuration/file/#formatters-conf
       # A list of prefixes, which, if set, checks import paths
       # with the given prefixes are grouped after 3rd-party packages.
       local-prefixes: # Default: []
-        - github.com/selfshop-dev/tpl-seed
+        - github.com/selfshop-dev
