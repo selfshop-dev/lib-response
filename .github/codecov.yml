@@ -1,0 +1,35 @@
+codecov:
+  require_ci_to_pass: true
+
+coverage:
+  precision: 2
+  round: down
+  range: "80...100"
+
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 1%
+    patch:
+      default:
+        target: 80%
+        threshold: 5%
+
+# Codecov accepts both glob and regex patterns.
+# Using glob here — simpler and sufficient.
+# Note: folder/* does NOT match recursively; use folder/**/* for deep exclusion.
+ignore:
+  # Generated directories (sqlc, oapi-codegen, protoc output)
+  - "**/gen/**/*"
+  # Generated files by suffix (protobuf, mockgen)
+  - "**/*_mock.go"
+  - "**/*.pb.go"
+  - "**/*.pb.gw.go"
+  # Other generated suffixes kept for compatibility
+  - "**/*.sql.go"
+  - "**/*.gen.go"
+  # Standard exclusions
+  - "**/vendor/**/*"
+  - "**/testdata/**/*"
+  - "**/cmd/**/*"
