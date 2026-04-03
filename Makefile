@@ -1,5 +1,3 @@
-FILE ?= cpu.out
-
 .PHONY: help
 help:
 	@awk -f help.awk $(MAKEFILE_LIST)
@@ -38,4 +36,4 @@ prof: ## Собрать профили (cpu, mem, block, mutex)
 
 .PHONY: prof-view
 prof-view: ## Открыть профиль в браузере (e.g. make prof-view FILE=mem.out)
-	go tool pprof -http=:8080 $(FILE)
+	go tool pprof -http=:8082 $(or $(FILE),cpu.out)
