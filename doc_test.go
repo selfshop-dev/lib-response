@@ -15,12 +15,12 @@ import (
 // testWriter is a Writer with no meta for use in examples.
 var testWriter = response.NewWriter(func(_ *http.Request) map[string]any { return nil })
 
-// ExampleWriter_OK demonstrates a successful 200 response.
-func ExampleWriter_OK() {
+// ExampleWriter_Ok demonstrates a successful 200 response.
+func ExampleWriter_Ok() {
 	rw := httptest.NewRecorder()
 	r := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/users/1", nil)
 
-	testWriter.OK(rw, r, map[string]any{"id": "uuid-1", "name": "Alice"})
+	testWriter.Ok(rw, r, map[string]any{"id": "uuid-1", "name": "Alice"})
 
 	fmt.Println(rw.Code)
 	fmt.Println(rw.Header().Get("Content-Type"))
@@ -174,7 +174,7 @@ func ExampleNewWriter() {
 	rw := httptest.NewRecorder()
 	r := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/users", nil)
 
-	w.OK(rw, r, nil)
+	w.Ok(rw, r, nil)
 
 	fmt.Println(rw.Code)
 
