@@ -18,8 +18,8 @@ go get -u github.com/selfshop-dev/lib-response
 
 Все ответы — успешные и ошибочные — используют единый JSON-конверт в формате RFC-9457. Успешные ответы несут `data`, ошибочные — `detail` и `extensions`. Content-Type `application/json` для 2xx, `application/problem+json` для 4xx/5xx.
 
-```json
-// 201 Created
+**201 Created**
+```
 {
     "type":     "about:blank",
     "status":   201,
@@ -28,8 +28,10 @@ go get -u github.com/selfshop-dev/lib-response
     "instance": "/orders",
     "meta":     { "request_id": "abc123" }
 }
+```
 
-// 422 Unprocessable Entity
+**422 Unprocessable Entity**
+```json
 {
     "type":       "about:blank",
     "status":     422,
@@ -37,7 +39,12 @@ go get -u github.com/selfshop-dev/lib-response
     "detail":     "invalid order",
     "instance":   "/orders",
     "meta":       { "request_id": "abc123" },
-    "extensions": { "fields": [ ... ] }
+    "extensions": {
+        "fields": [
+            { "field": "email", "code": "required", "message": "email is required" },
+            { "field": "quantity", "code": "out_of_range", "message": "quantity must be between 1 and 100" }
+        ]
+    }
 }
 ```
 
