@@ -19,7 +19,7 @@ go get -u github.com/selfshop-dev/lib-response
 Все ответы — успешные и ошибочные — используют единый JSON-конверт в формате RFC-9457. Успешные ответы несут `data`, ошибочные — `detail` и `extensions`. Content-Type `application/json` для 2xx, `application/problem+json` для 4xx/5xx.
 
 **201 Created**
-```
+```json
 {
     "type":     "about:blank",
     "status":   201,
