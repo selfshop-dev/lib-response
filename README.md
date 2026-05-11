@@ -6,7 +6,7 @@
 [![Go version](https://img.shields.io/github/go-mod/go-version/selfshop-dev/lib-response)](go.mod)
 [![License](https://img.shields.io/github/license/selfshop-dev/lib-response)](LICENSE)
 
-RFC-9457 сериализация HTTP-ответов для Go-сервисов. HTTP wire layer для стека selfshop-dev — единственное место, где доменные ошибки превращаются в HTTP-ответы. Проект организации [selfshop-dev](https://github.com/selfshop-dev).
+RFC-9457 HTTP response serialization for Go services. The HTTP wire layer for the selfshop-dev stack — the single place where domain errors are turned into HTTP responses. A project by [selfshop-dev](https://github.com/selfshop-dev).
 
 ### Installation
 
@@ -16,7 +16,7 @@ go get -u github.com/selfshop-dev/lib-response
 
 ## Overview
 
-Все ответы — успешные и ошибочные — используют единый JSON-конверт в формате RFC-9457. Успешные ответы несут `data`, ошибочные — `detail` и `extensions`. Content-Type `application/json` для 2xx, `application/problem+json` для 4xx/5xx.
+All responses — successful and error — use a unified JSON envelope in RFC-9457 format. Successful responses carry `data`, error responses carry `detail` and `extensions`. Content-Type is `application/json` for 2xx, `application/problem+json` for 4xx/5xx.
 
 **201 Created**
 ```json
@@ -48,7 +48,7 @@ go get -u github.com/selfshop-dev/lib-response
 }
 ```
 
-### Быстрый старт
+### Quick Start
 
 ```go
 import response "github.com/selfshop-dev/lib-response"
@@ -69,28 +69,28 @@ func (h *Handler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 
 ## Writer
 
-`Writer` — основная точка входа. Создаётся один раз при старте сервиса через `NewWriter` с `MetaExtractor`, который строит `meta`-поле из входящего запроса. Все методы безопасны для конкурентного использования.
+`Writer` is the main entry point. It is created once at service startup via `NewWriter` with a `MetaExtractor` that builds the `meta` field from the incoming request. All methods are safe for concurrent use.
 
 ```go
 var respond = response.NewWriter(func(r *http.Request) map[string]any {
     id := httpx.RequestIDFromContext(r.Context())
     if id == "" {
-        return nil // meta поле будет опущено
+        return nil // meta field will be omitted
     }
     return map[string]any{"request_id": id}
 })
 ```
 
-Методы успешных ответов принимают произвольный `data`-payload:
+Successful response methods accept an arbitrary `data` payload:
 
 ```go
 respond.Ok(w, r, user)       // 200
 respond.Created(w, r, order) // 201
 respond.Accepted(w, r, job)  // 202
-respond.NoContent(w, r)      // 204 — без тела
+respond.NoContent(w, r)      // 204 — no body
 ```
 
-Методы ошибочных ответов принимают `detail`-строку или ошибку:
+Error response methods accept a `detail` string or an error:
 
 ```go
 respond.BadRequest(w, r, "invalid json body")
@@ -98,20 +98,20 @@ respond.Unauthorized(w, r, "token expired")
 respond.Forbidden(w, r, "admin role required")
 respond.NotFound(w, r, "user not found")
 respond.Conflict(w, r, "email already registered")
-respond.InternalServerError(w, r) // detail всегда опускается
+respond.InternalServerError(w, r) // detail is always omitted
 ```
 
-## Маппинг ошибок
+## Error Mapping
 
-`Writer.Error` инспектирует цепочку ошибок в порядке приоритета и выбирает правильный ответ автоматически.
+`Writer.Error` inspects the error chain in priority order and selects the correct response automatically.
 
 ```go
 respond.Error(w, r, err)
 ```
 
-Приоритет обработки следующий. Первым проверяется `*apperr.Error` — статус определяется по `Kind`, для `KindInternal` и `KindUnknown` `detail` подавляется; если `apperr` несёт `*validation.Error`, она попадает в `extensions.fields`. Если `*apperr.Error` не найден, проверяется `*validation.Error` — возвращается 422 с `extensions.fields`. Для всех прочих ошибок возвращается 500 без `detail`.
+The handling priority is as follows. First, `*apperr.Error` is checked — the status is determined by `Kind`; for `KindInternal` and `KindUnknown` the `detail` is suppressed; if the `apperr` carries a `*validation.Error`, it is placed into `extensions.fields`. If no `*apperr.Error` is found, `*validation.Error` is checked — a 422 is returned with `extensions.fields`. For all other errors, a 500 is returned without `detail`.
 
-| `apperr.Kind` | HTTP статус |
+| `apperr.Kind` | HTTP status |
 |---|---|
 | `KindNotFound` | 404 |
 | `KindUnauthorized` | 401 |
@@ -120,19 +120,19 @@ respond.Error(w, r, err)
 | `KindUnprocessable` | 422 |
 | `KindUnavailable` | 503 |
 | `KindTimeout` | 504 |
-| `KindInternal`, `KindUnknown` | 500 (без detail) |
+| `KindInternal`, `KindUnknown` | 500 (no detail) |
 
-## Сентинелы
+## Sentinels
 
-Пакет экспортирует готовые `*Problem` для типичных HTTP-ошибок. Сентинелы безопасны для совместного использования между запросами — `WithDetail` возвращает копию и никогда не мутирует получателя.
+The package exports ready-made `*Problem` values for common HTTP errors. Sentinels are safe for concurrent use across requests — `WithDetail` returns a copy and never mutates the receiver.
 
 ```go
 respond.Write(w, r, response.ErrNotFound)
 respond.Write(w, r, response.ErrNotFound.WithDetail("order not found"))
 ```
 
-Доступные сентинелы: `ErrBadRequest`, `ErrUnauthorized`, `ErrForbidden`, `ErrNotFound`, `ErrMethodNotAllowed`, `ErrConflict`, `ErrUnprocessable`, `ErrTooManyRequests`, `ErrInternalServerError`, `ErrNotImplemented`, `ErrServiceUnavailable`.
+Available sentinels: `ErrBadRequest`, `ErrUnauthorized`, `ErrForbidden`, `ErrNotFound`, `ErrMethodNotAllowed`, `ErrConflict`, `ErrUnprocessable`, `ErrTooManyRequests`, `ErrInternalServerError`, `ErrNotImplemented`, `ErrServiceUnavailable`.
 
-## Лицензия
+## License
 
 [`MIT`](LICENSE) © 2026-present [`selfshop-dev`](https://github.com/selfshop-dev)
